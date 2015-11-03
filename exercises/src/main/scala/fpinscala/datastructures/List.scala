@@ -23,6 +23,7 @@ object List { // `List` companion object. Contains functions for creating and wo
     if (as.isEmpty) Nil
     else Cons(as.head, apply(as.tail: _*))
 
+  // Exercise 3.1 answer: 3
   val x = List(1,2,3,4,5) match {
     case Cons(x, Cons(2, Cons(4, _))) => x
     case Nil => 42
@@ -50,19 +51,71 @@ object List { // `List` companion object. Contains functions for creating and wo
     foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
 
-  def tail[A](l: List[A]): List[A] = sys.error("todo")
+  // Exercise 3.2
+  def tail[A](l: List[A]): List[A] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => xs
+  }
 
-  def setHead[A](l: List[A], h: A): List[A] = sys.error("todo")
+  def setHead[A](l: List[A], h: A): List[A] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => Cons(h, xs)
+  }
 
-  def drop[A](l: List[A], n: Int): List[A] = sys.error("todo")
+  def drop[A](l: List[A], n: Int): List[A] = l match {
+    case Nil => Nil
+    case Cons(x, xs) =>
+      if(n > 0) drop(xs, n - 1)
+      else l
+  }
 
-  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = sys.error("todo")
+  def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
+    case Nil => Nil
+    case Cons(x, xs) =>
+      if(f(x)) dropWhile(xs, f)
+      else l
+  }
 
-  def init[A](l: List[A]): List[A] = sys.error("todo")
+  def init[A](l: List[A]): List[A] = ???
 
-  def length[A](l: List[A]): Int = sys.error("todo")
+  def length[A](l: List[A]): Int = l match {
+    case Nil => 0
+    case Cons(x, xs) => 1 + length(xs)
+  }
 
-  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = sys.error("todo")
+  def foldLeft[A,B](l: List[A], z: B)(f: (B, A) => B): B = foldRight(l, z)((a: A, b: B) => f(b, a))
 
-  def map[A,B](l: List[A])(f: A => B): List[B] = sys.error("todo")
+  def map[A,B](l: List[A])(f: A => B): List[B] = l match {
+    case Nil => Nil
+    case Cons(x, xs) => Cons(f(x), map(xs)(f))
+  }
+
+  def toString[A](l: List[A]): String = l match {
+    case Nil => ""
+    case Cons(x, Nil) => x.toString
+    case Cons(x, xs) => x.toString + ", " + toString(xs)
+  }
+
+  def printList[A](l: List[A]): Unit = println(toString(l))
+}
+
+object MyApp {
+  import List._
+
+  def main(args: Array[String]): Unit = {
+    val l: List[Int] = List(1, 2, 3)
+    val l2: List[Int] = List(1, -2, 3)
+    printList(l)
+    printList(tail(l))
+    printList(setHead(l, 10))
+    printList(drop(l, 2))
+    printList(dropWhile[Int](l, _ < 3))
+//    printList(init(l)) TODO
+    println(length(l))
+    println(foldRight[Int, Boolean](l, true)((x, bool) => x > 0 && bool))
+    println(foldLeft[Int, Boolean](l, true)((bool, x) => x > 0 && bool))
+    println(foldRight[Int, Boolean](l2, true)((x, bool) => x > 0 && bool))
+    println(foldLeft[Int, Boolean](l2, true)((bool, x) => x > 0 && bool))
+    printList(map(l)(_ + 1))
+  }
 }
